@@ -1,23 +1,11 @@
 apiVersion: v2
-name: actions
-description: Gitea Actions chart for Kubernetes
+name: gitea-sierra-group
+description: Wrapper chart for gitea
 type: application
-version: 0.0.0
-# renovate datasource=github-releases depName=go-gitea/act extractVersion=^v(?<version>.*)$
-appVersion: 0.261.3
-
-keywords:
-  - cicd
-  - runner
-  - actions
-sources:
-  - https://gitea.com/gitea/helm-actions
-  - https://gitea.com/gitea/act
-# FIXME:
-# maintainers:
+version: 0.1.0
 
 dependencies:
   - name: gitea
-    version: "12.1.1"  # Especifica la versión del chart de gitea que deseas usar
-    repository: "https://dl.gitea.com/charts"  # URL del repositorio de gitea
+    version: "12.1.1"
+    repository: "https://dl.gitea.com/charts"
 
