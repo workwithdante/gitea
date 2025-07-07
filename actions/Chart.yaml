@@ -1,0 +1,19 @@
+apiVersion: v2
+name: actions
+description: Gitea Actions chart for Kubernetes
+type: application
+version: 0.0.0
+# renovate datasource=github-releases depName=go-gitea/act extractVersion=^v(?<version>.*)$
+appVersion: 0.261.3
+
+keywords:
+  - cicd
+  - runner
+  - actions
+sources:
+  - https://gitea.com/gitea/helm-actions
+  - https://gitea.com/gitea/act
+# FIXME:
+# maintainers:
+
+dependencies: []
