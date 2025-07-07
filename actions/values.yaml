@@ -105,7 +105,7 @@ existingSecret: gitea-actions-secret
 existingSecretKey: token
 
 ## Specify the root URL of the Gitea instance
-giteaRootURL: gitea.mabecenter.org
+giteaRootURL: https://gitea.mabecenter.org
 
 ## @section Persistence
 #
