@@ -29,7 +29,7 @@ gitea:
         MINIO_USE_SSL: false
 
       actions:
-        enabled: true
+        enabled: false
         statefulset:
           annotations: {}
           labels: {}
