@@ -1,0 +1,88 @@
+suite: actions template | job
+release:
+  name: gitea-unittests
+  namespace: testing
+chart:
+  # Override appVersion to have a pinned version for comparison
+  appVersion: 1.23.6
+templates:
+  - templates/job.yaml
+tests:
+  - it: renders a Job
+    template: templates/job.yaml
+    set:
+      enabled: true
+      provisioning:
+        enabled: true
+      persistence:
+        enabled: true
+        mount: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          kind: Job
+          apiVersion: batch/v1
+          name: gitea-unittests-actions-token-job
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.gitea.com/gitea:1.23.6-rootless"
+  - it: tag override
+    template: templates/job.yaml
+    set:
+      image.tag: "1.23.7"
+      enabled: true
+      provisioning:
+        enabled: true
+        publish:
+          tag: "1.29.0"
+      persistence:
+        enabled: true
+        mount: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.gitea.com/gitea:1.23.7-rootless"
+      - equal:
+          path: spec.template.spec.containers[1].image
+          value: "bitnami/kubectl:1.29.0"
+  - it: doesn't renders a Job by default
+    template: templates/job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: doesn't renders a Job when provisioning is enabled BUT actions are not enabled
+    template: templates/job.yaml
+    set:
+      enabled: false
+      provisioning:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: renders a Job with correct nc command
+    template: templates/job.yaml
+    set:
+      enabled: true
+      giteaRootURL: "https://git.example.com:8443"
+      provisioning:
+        enabled: true
+      persistence:
+        enabled: true
+        mount: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          kind: Job
+          apiVersion: batch/v1
+          name: gitea-unittests-actions-token-job
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "docker.gitea.com/gitea:1.23.6-rootless"
+      - equal:
+          path: spec.template.spec.initContainers[0].command[2]
+          value: |
+            while ! nc -z git.example.com 8443; do
+              sleep 5
+            done
