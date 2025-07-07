@@ -103,8 +103,9 @@ provisioning:
 ##
 existingSecret: gitea-actions-secret
 existingSecretKey: token
+
 ## Specify the root URL of the Gitea instance
-giteaRootURL: gitea-http.gitea.svc.cluster.local:3000
+giteaRootURL: https://gitea.mabecenter.org
 
 ## @section Persistence
 #
