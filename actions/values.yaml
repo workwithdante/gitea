@@ -101,11 +101,11 @@ provisioning:
 
 ## Specify an existing token secret
 ##
-existingSecret: "gitea-actions-secret"
-existingSecretKey: "token"
+existingSecret: gitea-actions-secret
+existingSecretKey: token
 
 ## Specify the root URL of the Gitea instance
-giteaRootURL: "gitea.mabecenter.org"
+giteaRootURL: gitea.mabecenter.org
 
 ## @section Persistence
 #
