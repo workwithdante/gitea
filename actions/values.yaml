@@ -37,6 +37,8 @@
 ## @param existingSecret Secret that contains the token
 ## @param existingSecretKey Secret key
 ## @param giteaRootURL URL the act_runner registers and connect with
+giteaRootURL: gitea.mabecenter.org
+
 gitea:
   actions:
     enabled: true
