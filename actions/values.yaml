@@ -1,0 +1,162 @@
+# Configure Gitea Actions
+# - must enable persistence if the job is enabled
+## @section Gitea Actions
+#
+## @param enabled Create an act runner StatefulSet.
+## @param init.image.repository The image used for the init containers
+## @param init.image.tag The image tag used for the init containers
+## @param statefulset.annotations Act runner annotations
+## @param statefulset.labels Act runner labels
+## @param statefulset.resources Act runner resources
+## @param statefulset.nodeSelector NodeSelector for the statefulset
+## @param statefulset.tolerations Tolerations for the statefulset
+## @param statefulset.affinity Affinity for the statefulset
+## @param statefulset.extraVolumes Extra volumes for the statefulset
+## @param statefulset.actRunner.repository The Gitea act runner image
+## @param statefulset.actRunner.tag The Gitea act runner tag
+## @param statefulset.actRunner.pullPolicy The Gitea act runner pullPolicy
+## @param statefulset.actRunner.extraVolumeMounts Allows mounting extra volumes in the act runner container
+## @param statefulset.actRunner.config [default: Too complex. See values.yaml] Act runner custom configuration. See [Act Runner documentation](https://docs.gitea.com/usage/actions/act-runner#configuration) for details.
+## @param statefulset.dind.repository The Docker-in-Docker image
+## @param statefulset.dind.tag The Docker-in-Docker image tag
+## @param statefulset.dind.pullPolicy The Docker-in-Docker pullPolicy
+## @param statefulset.dind.extraVolumeMounts Allows mounting extra volumes in the Docker-in-Docker container
+## @param statefulset.dind.extraEnvs Allows adding custom environment variables, such as `DOCKER_IPTABLES_LEGACY`
+## @param statefulset.persistence.size Size for persistence to store act runner data
+## @param provisioning.enabled Create a job that will create and save the token in a Kubernetes Secret
+## @param provisioning.annotations Job's annotations
+## @param provisioning.labels Job's labels
+## @param provisioning.resources Job's resources
+## @param provisioning.nodeSelector NodeSelector for the job
+## @param provisioning.tolerations Tolerations for the job
+## @param provisioning.affinity Affinity for the job
+## @param provisioning.ttlSecondsAfterFinished ttl for the job after finished in order to allow helm to properly recognize that the job completed
+## @param provisioning.publish.repository The image that can create the secret via kubectl
+## @param provisioning.publish.tag The publish image tag that can create the secret
+## @param provisioning.publish.pullPolicy The publish image pullPolicy that can create the secret
+## @param existingSecret Secret that contains the token
+## @param existingSecretKey Secret key
+## @param giteaRootURL URL the act_runner registers and connect with
+enabled: false
+statefulset:
+  annotations: {}
+  labels: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  extraVolumes: []
+
+  actRunner:
+    repository: gitea/act_runner
+    tag: 0.2.11
+    pullPolicy: IfNotPresent
+    extraVolumeMounts: []
+
+    # See full example here: https://gitea.com/gitea/act_runner/src/branch/main/internal/pkg/config/config.example.yaml
+    config: |
+      log:
+        level: debug
+      cache:
+        enabled: false
+
+  dind:
+    repository: docker
+    tag: 25.0.2-dind
+    pullPolicy: IfNotPresent
+    extraVolumeMounts: []
+
+    # If the container keeps crashing in your environment, you might have to add the `DOCKER_IPTABLES_LEGACY` environment variable.
+    # See https://github.com/docker-library/docker/issues/463#issuecomment-1881909456
+    extraEnvs:
+      []
+      #  - name: "DOCKER_IPTABLES_LEGACY"
+      #    value: "1"
+
+  persistence:
+    size: 1Gi
+
+init:
+  image:
+    repository: busybox
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "1.37.0"
+
+provisioning:
+  enabled: false
+
+  annotations: {}
+  labels: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  publish:
+    repository: bitnami/kubectl
+    tag: 1.29.0
+    pullPolicy: IfNotPresent
+
+  ttlSecondsAfterFinished: 300
+
+## Specify an existing token secret
+##
+existingSecret: ""
+existingSecretKey: ""
+
+## Specify the root URL of the Gitea instance
+giteaRootURL: ""
+
+## @section Persistence
+#
+## @param persistence.enabled Enable persistent storage
+## @param persistence.create Whether to create the persistentVolumeClaim for shared storage
+## @param persistence.mount Whether the persistentVolumeClaim should be mounted (even if not created)
+## @param persistence.claimName Use an existing claim to store repository information
+## @param persistence.size Size for persistence to store repo information
+## @param persistence.accessModes AccessMode for persistence
+## @param persistence.labels Labels for the persistence volume claim to be created
+## @param persistence.annotations.helm.sh/resource-policy Resource policy for the persistence volume claim
+## @param persistence.storageClass Name of the storage class to use
+## @param persistence.subPath Subdirectory of the volume to mount at
+## @param persistence.volumeName Name of persistent volume in PVC
+persistence:
+  enabled: true
+  create: true
+  mount: true
+  claimName: gitea-shared-storage
+  size: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  labels: {}
+  storageClass:
+  subPath:
+  volumeName: ""
+  annotations:
+    helm.sh/resource-policy: keep
+
+## @section Image
+## @param image.registry image registry, e.g. gcr.io,docker.io
+## @param image.repository Image to start for this pod
+## @param image.tag Visit: [Image tag](https://hub.docker.com/r/gitea/gitea/tags?page=1&ordering=last_updated). Defaults to `appVersion` within Chart.yaml.
+## @param image.digest Image digest. Allows to pin the given image tag. Useful for having control over mutable tags like `latest`
+## @param image.pullPolicy Image pull policy
+## @param image.rootless Wether or not to pull the rootless version of Gitea, only works on Gitea 1.14.x or higher
+## @param image.fullOverride Completely overrides the image registry, path/image, tag and digest. **Adjust `image.rootless` accordingly and review [Rootless defaults](#rootless-defaults).**
+image:
+  registry: "docker.gitea.com"
+  repository: gitea
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
+  rootless: true
+  fullOverride: ""
+
+## @section Global
+#
+## @param global.imageRegistry global image registry override
+## @param global.storageClass global storage class override
+global:
+  imageRegistry: ""
+  storageClass: ""
