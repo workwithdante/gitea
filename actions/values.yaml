@@ -37,7 +37,7 @@
 ## @param existingSecret Secret that contains the token
 ## @param existingSecretKey Secret key
 ## @param giteaRootURL URL the act_runner registers and connect with
-enabled: false
+enabled: true
 statefulset:
   annotations: {}
   labels: {}
@@ -101,11 +101,11 @@ provisioning:
 
 ## Specify an existing token secret
 ##
-existingSecret: ""
-existingSecretKey: ""
+existingSecret: "gitea-actions-secret"
+existingSecretKey: "token"
 
 ## Specify the root URL of the Gitea instance
-giteaRootURL: ""
+giteaRootURL: "gitea.mabecenter.org"
 
 ## @section Persistence
 #
