@@ -4,7 +4,7 @@ gitea:
     className: traefik
     annotations:
       kubernetes.io/ingress.class: "traefik"
-      traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
+      traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
     hosts:
       - host: gitea.mabecenter.org  # El dominio donde se accederá a gitea
         paths:
