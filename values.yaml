@@ -14,9 +14,8 @@ gitea:
         hosts:
           - gitea.mabecenter.org
         
-  gitea:
-    admin:
-      existingSecret: gitea-admin-secret
+  admin:
+    existingSecret: gitea-admin-secret
           
   additionalConfigSources:
     - secret:
