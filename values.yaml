@@ -19,44 +19,45 @@ gitea:
         secretName: gitea-minio-config
         defaultMode: 420
   
-  additionalConfigFromEnvs:
-    # sección [storage] MINIO_LOCATION
-    - name:  GITEA__STORAGE__MINIO_LOCATION
-      value: us-east-2
-
-    # sección [storage] MINIO_USE_SSL
-    - name:  GITEA__STORAGE__MINIO_USE_SSL
-      value: "false"
-
-    # sección [storage] MINIO_ENDPOINT
-    - name:  GITEA__STORAGE__MINIO_ENDPOINT
-      value: minio.minio.svc.cluster.local:9000
-
-    # sección [storage] STORAGE_TYPE
-    - name:  GITEA__STORAGE__STORAGE_TYPE
-      value: minio
-
-    # sección [storage] MINIO_BUCKET
-    - name:  GITEA__STORAGE__MINIO_BUCKET
-      value: gitea
-
-    # sección [storage] MINIO_ACCESS_KEY_ID desde Secret
-    - name:  GITEA__STORAGE__MINIO_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: gitea-minio-credentials
-          key:  MINIO_ACCESS_KEY_ID
-
-    # sección [storage] MINIO_SECRET_ACCESS_KEY desde Secret
-    - name:  GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: gitea-minio-credentials
-          key:  MINIO_SECRET_ACCESS_KEY
-
   gitea:
     admin:
       existingSecret: gitea-admin-secret
+    
+    additionalConfigFromEnvs:
+      # sección [storage] MINIO_LOCATION
+      - name:  GITEA__STORAGE__MINIO_LOCATION
+        value: us-east-2
+
+      # sección [storage] MINIO_USE_SSL
+      - name:  GITEA__STORAGE__MINIO_USE_SSL
+        value: "false"
+
+      # sección [storage] MINIO_ENDPOINT
+      - name:  GITEA__STORAGE__MINIO_ENDPOINT
+        value: minio.minio.svc.cluster.local:9000
+
+      # sección [storage] STORAGE_TYPE
+      - name:  GITEA__STORAGE__STORAGE_TYPE
+        value: minio
+
+      # sección [storage] MINIO_BUCKET
+      - name:  GITEA__STORAGE__MINIO_BUCKET
+        value: gitea
+
+      # sección [storage] MINIO_ACCESS_KEY_ID desde Secret
+      - name:  GITEA__STORAGE__MINIO_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-credentials
+            key:  MINIO_ACCESS_KEY_ID
+
+      # sección [storage] MINIO_SECRET_ACCESS_KEY desde Secret
+      - name:  GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-credentials
+            key:  MINIO_SECRET_ACCESS_KEY
+
           
   persistence:
     enabled: false
