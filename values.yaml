@@ -20,4 +20,5 @@ gitea:
           
   additionalConfigSources:
     - secret:
-      secretName: gitea-minio-config
+        secretName: gitea-minio-config
+        defaultMode: 420
