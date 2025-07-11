@@ -22,3 +22,18 @@ gitea:
     - secret:
         secretName: gitea-minio-config
         defaultMode: 420
+  
+  persistence:
+    enabled: false
+    create: false
+    mount: false
+    claimName: gitea-shared-storage
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    labels: {}
+    storageClass:
+    subPath:
+    volumeName: ""
+    annotations:
+      helm.sh/resource-policy: keep
