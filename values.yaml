@@ -17,8 +17,7 @@ gitea:
   gitea:
     admin:
       existingSecret: gitea-admin-secret
-
-    config:
+  config:
       storage:
         STORAGE_TYPE: "minio"
         MINIO_ENDPOINT: "minio.minio.svc.cluster.local:9000"
@@ -27,3 +26,19 @@ gitea:
         MINIO_BUCKET: "gitea"
         MINIO_LOCATION: "us-east-1"
         MINIO_USE_SSL: false
+
+  deployment:
+    env:
+      - name: MINIO_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: MINIO_ACCESS_KEY_ID
+
+      - name: MINIO_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: MINIO_SECRET_ACCESS_KEY
+
+    
