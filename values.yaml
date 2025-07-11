@@ -13,15 +13,16 @@ gitea:
       - secretName: tls-cert  # Certificado TLS para la conexión segura
         hosts:
           - gitea.mabecenter.org
-  gitea:
-    admin:
-      existingSecret: gitea-admin-secret
-          
+
   additionalConfigSources:
     - secret:
         secretName: gitea-minio-config
         defaultMode: 420
-  
+
+  gitea:
+    admin:
+      existingSecret: gitea-admin-secret
+          
   persistence:
     enabled: false
     create: false
