@@ -48,14 +48,14 @@ gitea:
       - name:  GITEA__STORAGE__MINIO_ACCESS_KEY_ID
         valueFrom:
           secretKeyRef:
-            name: gitea_minio_config
+            name: gitea-minio-config
             key:  MINIO_ACCESS_KEY_ID
 
       # sección [storage] MINIO_SECRET_ACCESS_KEY desde Secret
       - name:  GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
         valueFrom:
           secretKeyRef:
-            name: gitea_minio_config
+            name: gitea-minio-config
             key:  MINIO_SECRET_ACCESS_KEY
 
           
