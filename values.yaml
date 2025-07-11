@@ -17,6 +17,13 @@ gitea:
   gitea:
     admin:
       existingSecret: gitea-admin-secret
+    config:
+      storage:
+        STORAGE_TYPE: "minio"
+        MINIO_ENDPOINT: "minio.minio.svc.cluster.local:9000"
+        MINIO_BUCKET: "gitea"
+        MINIO_LOCATION: "us-east-2"
+        MINIO_USE_SSL: false
           
   deployment:
     env:
