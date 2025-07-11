@@ -1,10 +1,9 @@
 gitea:
   ingress:
     enabled: true
-    className: traefik
+    ingressClassName: "traefik"  # Usar Traefik como controlador de Ingress
     annotations:
       kubernetes.io/ingress.class: "traefik"
-      traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
     hosts:
       - host: gitea.mabecenter.org  # El dominio donde se accederá a gitea
         paths:
@@ -18,18 +17,21 @@ gitea:
   gitea:
     admin:
       existingSecret: gitea-admin-secret
-  config:
-      storage:
-        STORAGE_TYPE: "minio"
-        MINIO_ENDPOINT: "minio.minio.svc.cluster.local:9000"
-        MINIO_ACCESS_KEY_ID: "minioadmin"
-        MINIO_SECRET_ACCESS_KEY: "minio123"
-        MINIO_BUCKET: "gitea"
-        MINIO_LOCATION: "us-east-1"
-        MINIO_USE_SSL: false
-
+          
   deployment:
     env:
+      - name: STORAGE_TYPE
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: STORAGE_TYPE
+
+      - name: MINIO_ENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: MINIO_ENDPOINT
+
       - name: MINIO_ACCESS_KEY_ID
         valueFrom:
           secretKeyRef:
@@ -42,4 +44,20 @@ gitea:
             name: gitea-minio-config
             key: MINIO_SECRET_ACCESS_KEY
 
-    
+      - name: MINIO_BUCKET
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: MINIO_BUCKET
+
+      - name: MINIO_LOCATION
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: MINIO_LOCATION
+
+      - name: MINIO_USE_SSL
+        valueFrom:
+          secretKeyRef:
+            name: gitea-minio-config
+            key: MINIO_USE_SSL
