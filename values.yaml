@@ -17,3 +17,7 @@ gitea:
   gitea:
     admin:
       existingSecret: gitea-admin-secret
+          
+  additionalConfigSources:
+    - secret:
+      secretName: gitea-minio-config
