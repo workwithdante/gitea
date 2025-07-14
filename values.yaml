@@ -4,6 +4,7 @@ gitea:
     ingressClassName: "traefik"  # Usar Traefik como controlador de Ingress
     annotations:
       kubernetes.io/ingress.class: "traefik"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure, web
     hosts:
       - host: gitea.mabecenter.org  # El dominio donde se accederá a gitea
         paths:
