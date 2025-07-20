@@ -93,25 +93,41 @@ gitea:
               command: ["/bin/sh","-c"]
               args:
               - |
-                until curl -sf https://gitea.mabecenter.org/ > /dev/null; do sleep 2; done
-                SELFTOKEN=$(
-                  gitea --config /data/gitea/conf/app.ini \
-                    admin user generate-access-token \
-                      --username {{ .Values.gitea.admin.username }} \
-                      --token-name import-script \
-                  | awk '/^Token:/ { print $2 }'
-                )
-                for repo in repo1 repo2; do
-                  gitea --config /data/gitea/conf/app.ini \
-                    admin repo migrate \
-                    --auth-username "$GITEA_COM_USER" \
-                    --auth-password "$GITEA_COM_TOKEN" \
-                    --clone-addr "https://gitea.com/sierra-group/$repo.git" \
-                    --repo-name "$repo" \
-                    --mirror=false \
-                    --private
-                  echo "→ $repo importado"
-                done
+                  # 1) Generar token de admin en self‑hosted
+                  SELFTOKEN=$(
+                    gitea --config /data/gitea/conf/app.ini \
+                      admin user generate-access-token \
+                        --username {{ .Values.gitea.admin.username }} \
+                        --token-name import-script \
+                    | awk '/^Token:/ { print $2 }'
+                  )
+                  echo "🔑 Token admin generado"
+
+                  # 2) Obtener UID numérico del admin
+                  SELF_UID=$(
+                    curl -sSL -H "Authorization: token $SELFTOKEN" \
+                      $GITEA_URL/api/v1/user \
+                    | jq .id
+                  )
+                  echo "👤 Admin UID: $SELF_UID"
+
+                  # 3) Migrar repositorios usando la API REST
+                  for repo in repo1 repo2; do
+                    echo "→ Migrando $repo…"
+                    curl -sSL -X POST $GITEA_URL/api/v1/repos/migrate \
+                      -H "Authorization: token $SELFTOKEN" \
+                      -H "Content-Type: application/json" \
+                      -d '{
+                            "clone_addr":   "https://gitea.com/'"${GITEA_COM_USER}"'/'"$repo"'.git",
+                            "auth_username":"'"${GITEA_COM_USER}"'",
+                            "auth_password":"'"${GITEA_COM_TOKEN}"'",
+                            "uid":          '"$SELF_UID"',
+                            "repo_name":    "'"$repo"'",
+                            "mirror":       false,
+                            "private":      true
+                          }'
+                    echo "✓ $repo importado"
+                  done
             restartPolicy: OnFailure
 
   persistence:
