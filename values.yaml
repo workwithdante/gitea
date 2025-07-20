@@ -111,7 +111,7 @@ gitea:
                   # 2) Obtener UID del admin
                   USER_JSON=$(
                     curl -sSL -H "Authorization: token $SELFTOKEN" \
-                         https://gitea.mabecenter.org:{{ .Values.service.http.port }}/api/v1/user
+                         https://gitea.mabecenter.org/api/v1/user
                   )
                   SELF_UID=$(
                     printf '%s' "$USER_JSON" \
@@ -124,7 +124,7 @@ gitea:
                   # 3) Migrar repos privados
                   for repo in repo1 repo2; do
                     echo "→ Migrando $repo…"
-                    curl -sSL -X POST https://gitea.mabecenter.org:{{ .Values.service.http.port }}/api/v1/repos/migrate \
+                    curl -sSL -X POST https://gitea.mabecenter.org/api/v1/repos/migrate \
                       -H "Authorization: token $SELFTOKEN" \
                       -H "Content-Type: application/json" \
                       -d '{
