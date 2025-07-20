@@ -53,6 +53,10 @@ gitea:
           secretKeyRef:
             name: gitea-minio-config
             key:  MINIO_SECRET_ACCESS_KEY
+  
+  serviceAccount:
+    create: true
+    name: gitea-backup-sa
     
   extraDeploy:
     - apiVersion: batch/v1
