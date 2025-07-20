@@ -66,12 +66,11 @@ gitea:
         backoffLimit: 1
         template:
           spec:
-            serviceAccountName: {{ .Values.serviceAccount.name }}
+            serviceAccountName: gitea-backup-sa
             containers:
             - name: importer
-              image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+              image: "docker.gitea.com/gitea:1.20.3"
               env:
-                # Credenciales para gitea.com (repo privado)
                 - name: GITEA_COM_USER
                   valueFrom:
                     secretKeyRef:
@@ -85,37 +84,25 @@ gitea:
               command: ["/bin/sh","-c"]
               args:
               - |
-                # 1) Esperar a que Gitea esté listo
-                until curl -sf http://localhost:{{ .Values.service.http.port }}/; do sleep 2; done
-
-                # 2) Generar token admin de **tu instancia self‑hosted**
+                until curl -sf http://localhost:3000/; do sleep 2; done
                 SELFTOKEN=$(
-                  gitea --config /data/gitea/conf/app.ini \
-                    admin user generate-token \
+                  gitea --config /data/gitea/conf/app.ini admin user generate-token \
                     --username {{ .Values.gitea.admin.username }} \
                     --password {{ .Values.gitea.admin.password }} \
                     --expire-in 0 \
                   | awk '{print $2}'
                 )
-
-                # 3) Importar cada repo privado usando credenciales de gitea.com
-                for repo in repo1 repo2 repo3; do
-                  gitea --config /data/gitea/conf/app.ini \
-                    admin repo migrate \
-                    --auth-username "${GITEA_COM_USER}" \
-                    --auth-password "${GITEA_COM_TOKEN}" \
-                    --clone-addr "https://gitea.com/${GITEA_COM_USER}/$repo.git" \
+                for repo in repo1 repo2; do
+                  gitea --config /data/gitea/conf/app.ini admin repo migrate \
+                    --auth-username "$GITEA_COM_USER" \
+                    --auth-password "$GITEA_COM_TOKEN" \
+                    --clone-addr "https://gitea.com/$GITEA_COM_USER/$repo.git" \
                     --repo-name "$repo" \
                     --mirror=false \
                     --private
                   echo "→ $repo importado"
                 done
-
             restartPolicy: OnFailure
-            volumes:
-              - name: gitea-data
-                persistentVolumeClaim:
-                  claimName: {{ .Values.persistence.claimName }}
 
   persistence:
     enabled: false
