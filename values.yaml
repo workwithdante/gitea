@@ -94,17 +94,7 @@ gitea:
               args:
               - |
                   # 1) Generar token admin con BasicAuth
-                  TOKEN_JSON=$(
-                    curl -sSL -u "{{ .Values.gitea.admin.username }}:{{ .Values.gitea.admin.password }}" \
-                         -H "Content-Type: application/json" \
-                         -d '{"name":"import-script","scopes":["all"]}' \
-                         https://gitea.mabecenter.org/api/v1/users/{{ .Values.gitea.admin.username }}/tokens
-                  )
-                  SELFTOKEN=$(
-                    printf '%s' "$TOKEN_JSON" \
-                    | grep -Eo '"sha1":"[0-9a-f]+"' \
-                    | cut -d\" -f4
-                  )
+                  SELFTOKEN=$(gitea admin user generate-access-token --username workwithdante --token-name testing2 --raw)
                   echo "🔑 Token admin: $SELFTOKEN"
 
                   # ————————————————
