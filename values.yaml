@@ -70,6 +70,11 @@ gitea:
         backoffLimit: 1
         template:
           spec:
+            securityContext:
+              runAsUser:    1000    # UID del usuario 'git' en la imagen oficial
+              runAsGroup:   1000
+              fsGroup:      1000
+              runAsNonRoot: true
             serviceAccountName: gitea-backup-sa
             containers:
             - name: importer
