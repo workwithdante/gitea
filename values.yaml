@@ -78,12 +78,12 @@ gitea:
                 - name: GITEA_COM_USER
                   valueFrom:
                     secretKeyRef:
-                      name: gitea-com-credentials
+                      name: gitea-com-credential
                       key: username
                 - name: GITEA_COM_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: gitea-com-credentials
+                      name: gitea-com-credential
                       key: token
               command: ["/bin/sh","-c"]
               args:
