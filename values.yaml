@@ -94,7 +94,7 @@ gitea:
               args:
               - |
                   # 1) Generar token admin con BasicAuth
-                  SELFTOKEN=$(gitea admin user generate-access-token --username workwithdante --token-name testing2 --raw)
+                  SELFTOKEN=$(gitea --config /data/gitea/conf/app.ini admin user generate-access-token --username workwithdante --token-name testing2 --raw)
                   echo "🔑 Token admin: $SELFTOKEN"
 
                   # ————————————————
