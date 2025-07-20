@@ -95,14 +95,15 @@ gitea:
               - |
                 until curl -sf https://gitea.mabecenter.org/ > /dev/null; do sleep 2; done
                 SELFTOKEN=$(
-                  gitea --config /data/gitea/conf/app.ini admin user generate-token \
-                    --username {{ .Values.gitea.admin.username }} \
-                    --password {{ .Values.gitea.admin.password }} \
-                    --expire-in 0 \
-                  | awk '{print $2}'
+                  gitea --config /data/gitea/conf/app.ini \
+                    admin user generate-access-token \
+                      --username {{ .Values.gitea.admin.username }} \
+                      --token-name import-script \
+                  | awk '/^Token:/ { print $2 }'
                 )
                 for repo in repo1 repo2; do
-                  gitea --config /data/gitea/conf/app.ini admin repo migrate \
+                  gitea --config /data/gitea/conf/app.ini \
+                    admin repo migrate \
                     --auth-username "$GITEA_COM_USER" \
                     --auth-password "$GITEA_COM_TOKEN" \
                     --clone-addr "https://gitea.com/sierra-group/$repo.git" \
