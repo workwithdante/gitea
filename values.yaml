@@ -88,7 +88,7 @@ gitea:
               command: ["/bin/sh","-c"]
               args:
               - |
-                until curl -sf https://gitea.mabecenter.org/ > /dev/null; do; do sleep 2; done
+                until curl -sf https://gitea.mabecenter.org/ > /dev/null; do sleep 2; done
                 SELFTOKEN=$(
                   gitea --config /data/gitea/conf/app.ini admin user generate-token \
                     --username {{ .Values.gitea.admin.username }} \
