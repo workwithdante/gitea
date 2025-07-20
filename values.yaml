@@ -65,7 +65,7 @@ gitea:
         name: import-repos
         annotations:
           "helm.sh/hook": post-install
-          "helm.sh/hook-delete-policy": hook-succeeded
+          "helm.sh/hook-delete-policy": hook-failed
       spec:
         backoffLimit: 1
         template:
