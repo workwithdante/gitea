@@ -93,43 +93,51 @@ gitea:
               command: ["/bin/sh","-c"]
               args:
               - |
-                # 1) Generar token admin
-                SELFTOKEN=$(
-                  gitea --config /data/gitea/conf/app.ini \
-                    admin user generate-access-token \
-                      --username {{ .Values.gitea.admin.username }} \
-                      --token-name import-script \
-                  | grep '^Token:' | awk '{print $2}'
-                )
-                echo "🔑 Token admin: $SELFTOKEN"
+                  # 1) Generar token admin con BasicAuth
+                  TOKEN_JSON=$(
+                    curl -sSL -u "{{ .Values.gitea.admin.username }}:{{ .Values.gitea.admin.password }}" \
+                         -H "Content-Type: application/json" \
+                         -d '{"name":"import-script","scopes":["all"]}' \
+                         http://gitea:{{ .Values.service.http.port }}/api/v1/users/{{ .Values.gitea.admin.username }}/tokens
+                  )
+                  SELFTOKEN=$(
+                    printf '%s' "$TOKEN_JSON" \
+                    | grep -Eo '"sha1":"[0-9a-f]+"' \
+                    | cut -d\" -f4
+                  )
+                  echo "🔑 Token admin: $SELFTOKEN"
 
-                # 2) Obtener UID del admin sin jq
-                USER_JSON=$(
-                  curl -sSL -H "Authorization: token $SELFTOKEN" \
-                      https://gitea.mabecenter.org/api/v1/user
-                )
-                SELF_UID=$(printf '%s' "$USER_JSON" \
-                          | grep -Eo '"id":[0-9]+' \
-                          | cut -d: -f2)
-                echo "👤 Admin UID: $SELF_UID"
+                  # ————————————————
+                  # 2) Obtener UID del admin
+                  USER_JSON=$(
+                    curl -sSL -H "Authorization: token $SELFTOKEN" \
+                         http://gitea:{{ .Values.service.http.port }}/api/v1/user
+                  )
+                  SELF_UID=$(
+                    printf '%s' "$USER_JSON" \
+                    | grep -Eo '"id":[0-9]+' \
+                    | cut -d: -f2
+                  )
+                  echo "👤 Admin UID: $SELF_UID"
 
-                # 3) Migrar cada repo vía API REST
-                for repo in repo1 repo2; do
-                  echo "→ Migrando $repo…"
-                  curl -sSL -X POST https://gitea.mabecenter.org/api/v1/repos/migrate \
-                    -H "Authorization: token $SELFTOKEN" \
-                    -H "Content-Type: application/json" \
-                    -d '{
-                          "clone_addr":   "https://gitea.com/'"${GITEA_COM_USER}"'/'"$repo"'.git",
-                          "auth_username":"'"${GITEA_COM_USER}"'",
-                          "auth_password":"'"${GITEA_COM_TOKEN}"'",
-                          "uid":          '"$SELF_UID"',
-                          "repo_name":    "'"$repo"'",
-                          "mirror":       false,
-                          "private":      true
-                        }'
-                  echo "✓ $repo importado"
-                done
+                  # ————————————————
+                  # 3) Migrar repos privados
+                  for repo in repo1 repo2; do
+                    echo "→ Migrando $repo…"
+                    curl -sSL -X POST http://gitea:{{ .Values.service.http.port }}/api/v1/repos/migrate \
+                      -H "Authorization: token $SELFTOKEN" \
+                      -H "Content-Type: application/json" \
+                      -d '{
+                            "clone_addr":   "https://gitea.com/'"${GITEA_COM_USER}"'/'"$repo"'.git",
+                            "auth_username":"'"${GITEA_COM_USER}"'",
+                            "auth_password":"'"${GITEA_COM_TOKEN}"'",
+                            "uid":          '"$SELF_UID"',
+                            "repo_name":    "'"$repo"'",
+                            "mirror":       false,
+                            "private":      true
+                          }'
+                    echo "✓ $repo importado"
+                  done
             restartPolicy: OnFailure
 
   persistence:
