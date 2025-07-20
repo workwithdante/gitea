@@ -105,7 +105,7 @@ gitea:
                   gitea --config /data/gitea/conf/app.ini admin repo migrate \
                     --auth-username "$GITEA_COM_USER" \
                     --auth-password "$GITEA_COM_TOKEN" \
-                    --clone-addr "https://gitea.com/$GITEA_COM_USER/$repo.git" \
+                    --clone-addr "https://gitea.com/sierra-group/$repo.git" \
                     --repo-name "$repo" \
                     --mirror=false \
                     --private
