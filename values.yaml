@@ -67,7 +67,10 @@ gitea:
     server:
       SSH_PORT: 2200 # rootful image
       SSH_LISTEN_PORT: 2222 # rootless image
-    
+  
+  ssh:
+    port: 2200
+
   extraDeploy:
     - apiVersion: batch/v1
       kind: Job
