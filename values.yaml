@@ -6,8 +6,7 @@ gitea:
       ipFamilyPolicy: PreferDualStack
       ipFamilies:
         - IPv4
-        - IPv6
-        
+
   ingress:
     enabled: true
     ingressClassName: "traefik"  # Usar Traefik como controlador de Ingress
