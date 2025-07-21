@@ -1,11 +1,7 @@
 gitea:
   service:
     ssh:
-      type: ClusterIP
-      port: 22
-      ipFamilyPolicy: PreferDualStack
-      ipFamilies:
-        - IPv4
+      port: 2222
 
   ingress:
     enabled: true
@@ -29,6 +25,10 @@ gitea:
   gitea:
     admin:
       existingSecret: gitea-admin-secret
+
+    config:
+      server:
+        SSH_LISTEN_PORT: 2222
     
     additionalConfigFromEnvs:
       # sección [storage] MINIO_LOCATION
@@ -70,6 +70,19 @@ gitea:
     name: gitea-backup-sa
 
   extraDeploy:
+    - apiVersion: traefik.io/v1alpha1
+      kind: IngressRouteTCP
+      metadata:
+        name: ssh-route
+      spec:
+        entryPoints:
+          - ssh
+        routes:
+          - match: HostSNI(`*`)
+            services:
+              - name: gitea-ssh
+                port: 2222
+
     - apiVersion: batch/v1
       kind: Job
       metadata:
