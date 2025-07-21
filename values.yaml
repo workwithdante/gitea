@@ -15,6 +15,9 @@ gitea:
         hosts:
           - gitea.mabecenter.org
   
+  podAnnotations:
+    backup.velero.io/backup-volumes: "gitea-shared-storage"
+  
   gitea:
     admin:
       existingSecret: gitea-admin-secret
