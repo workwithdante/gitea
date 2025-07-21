@@ -60,6 +60,13 @@ gitea:
   serviceAccount:
     create: true
     name: gitea-backup-sa
+  
+  config:
+    #  APP_NAME: "Gitea: Git with a cup of tea"
+    #  RUN_MODE: dev
+    server:
+      SSH_PORT: 2200 # rootful image
+      SSH_LISTEN_PORT: 2222 # rootless image
     
   extraDeploy:
     - apiVersion: batch/v1
