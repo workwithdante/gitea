@@ -56,8 +56,83 @@ gitea:
           secretKeyRef:
             name: gitea-minio-config
             key:  MINIO_SECRET_ACCESS_KEY
+  
+  serviceAccount:
+    create: true
+    name: gitea-backup-sa
+    
+  extraDeploy:
+    - apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: import-repos
+        annotations:
+          "helm.sh/hook": post-install
+          "helm.sh/hook-delete-policy": hook-failed
+      spec:
+        backoffLimit: 1
+        template:
+          spec:
+            securityContext:
+              runAsUser:    1000    # UID del usuario 'git' en la imagen oficial
+              runAsGroup:   1000
+              fsGroup:      1000
+              runAsNonRoot: true
+            serviceAccountName: gitea-backup-sa
+            containers:
+            - name: importer
+              image: "docker.gitea.com/gitea:1.20.3"
+              env:
+                - name: GITEA_COM_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: gitea-com-credential
+                      key: username
+                - name: GITEA_COM_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: gitea-com-credential
+                      key: token
+              command: ["/bin/sh","-c"]
+              args:
+              - |
+                  # 1) Generar token admin con BasicAuth
+                  SELFTOKEN=$(gitea --config /data/gitea/conf/app.ini admin user generate-access-token --username workwithdante --token-name testing2 --raw)
+                  echo "🔑 Token admin: $SELFTOKEN"
 
-          
+                  # ————————————————
+                  # 2) Obtener UID del admin
+                  USER_JSON=$(
+                    curl -sSL -H "Authorization: token $SELFTOKEN" \
+                         https://gitea.mabecenter.org/api/v1/user
+                  )
+                  SELF_UID=$(
+                    printf '%s' "$USER_JSON" \
+                    | grep -Eo '"id":[0-9]+' \
+                    | cut -d: -f2
+                  )
+                  echo "👤 Admin UID: $SELF_UID"
+
+                  # ————————————————
+                  # 3) Migrar repos privados
+                  for repo in repo1 repo2; do
+                    echo "→ Migrando $repo…"
+                    curl -sSL -X POST https://gitea.mabecenter.org/api/v1/repos/migrate \
+                      -H "Authorization: token $SELFTOKEN" \
+                      -H "Content-Type: application/json" \
+                      -d '{
+                            "clone_addr":   "https://gitea.com/'"${GITEA_COM_USER}"'/'"$repo"'.git",
+                            "auth_username":"'"${GITEA_COM_USER}"'",
+                            "auth_password":"'"${GITEA_COM_TOKEN}"'",
+                            "uid":          '"$SELF_UID"',
+                            "repo_name":    "'"$repo"'",
+                            "mirror":       false,
+                            "private":      true
+                          }'
+                    echo "✓ $repo importado"
+                  done
+            restartPolicy: OnFailure
+
   persistence:
     enabled: false
     create: false
